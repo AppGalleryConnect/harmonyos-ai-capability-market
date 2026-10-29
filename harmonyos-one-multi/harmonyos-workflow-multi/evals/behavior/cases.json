@@ -1,0 +1,155 @@
+[
+  {
+    "id": "explicit-full-workflow",
+    "prompt": "按全流程完成原生 ArkTS 首页折叠屏适配，先出 SPEC 和高保真。",
+    "should_trigger": true,
+    "required_outcomes": [
+      "使用 workflow 组织范围、SPEC、确认、施工、验证和报告",
+      "在诊断、方案和修复时加载 UI 领域 Skill",
+      "将对应批次 hifiRequired 写为 true，SPEC 与高保真合并确认"
+    ],
+    "forbidden_claims": [
+      "因为只有一页就跳过 workflow",
+      "未确认 SPEC 就修改源码"
+    ]
+  },
+  {
+    "id": "large-project-batch-adaptation",
+    "prompt": "把一个 30 多页的原生 ArkTS 手机商城分十批适配到平板和折叠屏，使用 aggregate 汇总确认；所有批次都要先生成高保真，每份展示直板机、折叠屏和平板，不要逐页反复确认。",
+    "should_trigger": true,
+    "required_outcomes": [
+      "生成并核实页面清单和 route-map.json",
+      "按公共依赖和页面类型组织批次",
+      "所有批次 hifiRequired=true，task.targetForms 记录 phone/foldable/tablet",
+      "先生成全部 SPEC 和十份批次 HTML，再统一确认；每份 HTML 的每个页面固定展示直板机竖屏、普通双折叠展开竖屏、Pura X Max 展开横屏、平板横屏四张预览",
+      "每批依次完成 SPEC、确认、施工、验证和报告",
+      "用户同意后才开始下一批"
+    ],
+    "forbidden_claims": [
+      "在批次规划时提前生成具体问题和修法",
+      "先完成所有批次施工再统一验证",
+      "批次 SPEC 已汇总确认就自动执行后续批次",
+      "仅生成 B01 高保真或后续批次自行减少设备形态",
+      "仅首个页面包含四种默认形态，或默认增加外屏、悬停、三折叠、其他方向和状态选择器",
+      "用施工后补生成 HTML 代替施工前确认"
+    ]
+  },
+  {
+    "id": "non-interactive-workflow",
+    "prompt": "在不能提问的 CI 中扫描原生 ArkTS 工程并输出一多适配结果。",
+    "should_trigger": true,
+    "required_outcomes": [
+      "无法获得的用户决策明确标记为推定",
+      "没有目标形态证据时标记未验证",
+      "不将缺少人工确认的方案写成已确认"
+    ],
+    "forbidden_claims": [
+      "没有运行或视觉证据也标记验证通过"
+    ]
+  },
+  {
+    "id": "h5-local-issue-with-arkts-host",
+    "prompt": "修复 WebView 内 src/pages/Login.vue 在 Pura X Max 展开后按钮被截断的问题。工程还有 ArkTS Web 宿主，只处理这个问题。",
+    "should_trigger": false,
+    "required_outcomes": [
+      "直接加载 harmonyos-h5-multi，区分 Web 容器和 H5 内部约束",
+      "只定位相关页面与必要宿主调用链，按项目已有方式修改和验证"
+    ],
+    "forbidden_claims": [
+      "因存在 ArkTS 宿主就执行全工程 project-scan.py",
+      "创建 .onemulti、批次或 workflow 报告",
+      "将 H5 页面改写为 ArkUI"
+    ]
+  },
+  {
+    "id": "flutter-local-issue",
+    "prompt": "这是 Flutter OHOS 工程，修复 lib/pages/cart.dart 在平板窗口缩小时底部按钮溢出，保留现有 Flutter 布局。",
+    "should_trigger": false,
+    "required_outcomes": [
+      "直接加载 harmonyos-flutter-multi，定位目标 Widget 与父约束",
+      "沿用工程现有依赖和构建验证方式，不引入批次流程"
+    ],
+    "forbidden_claims": [
+      "调用 project-scan.py 发现 Dart 页面",
+      "创建 .onemulti 或批次 SPEC",
+      "只构建 ArkTS 宿主就宣称 Flutter 修改已完成验证"
+    ]
+  },
+  {
+    "id": "rn-local-issue-with-ohos-host",
+    "prompt": "RNOH 商城的 src/screens/Home.tsx 折叠展开后仍用旧列数，工程有 ohos/ 和 .ets 宿主，帮我修复这一处尺寸更新问题。",
+    "should_trigger": false,
+    "required_outcomes": [
+      "直接加载 harmonyos-rn-multi，沿 RN 尺寸、样式和必要宿主传播链定位",
+      "保持 JS/TSX 与宿主的职责边界，按工程实际链路验证"
+    ],
+    "forbidden_claims": [
+      "因为存在 ohos/ 或 .ets 就按原生全工程进行扫描和分批",
+      "创建 .onemulti、批次或 workflow 报告",
+      "将宿主扫描结果作为全部 RN 页面清单"
+    ]
+  },
+  {
+    "id": "flutter-full-workflow",
+    "prompt": "把这个 Flutter OHOS 工程全量扫描后分批适配，生成每批 SPEC、高保真和最终报告。",
+    "should_trigger": true,
+    "required_outcomes": [
+      "保留五项 Todo，由 workflow 统一分批、确认、施工、验证和报告",
+      "读取 pubspec 与 Dart 入口、页面和公共依赖，按功能分批，不强制原生扫描",
+      "加载 Flutter 领域知识生成 SPEC 和映射到 Widget 的高保真，确认后施工",
+      "使用实际 Flutter 工具链并区分 Dart 与宿主验证"
+    ],
+    "forbidden_claims": [
+      "将原生扫描器用于枚举全部 Flutter 页面",
+      "擅自缩成一个局部修复并宣称满足全量适配要求",
+      "高保真要求将 Flutter 页面重写成 ArkUI"
+    ]
+  },
+  {
+    "id": "h5-two-projects-full-workflow",
+    "prompt": "按全流程适配 H5 商城，host/ 是 ArkTS WebView 工程，web/ 是 Vue 源码，共同工作区已授权。先给全部批次 SPEC 和高保真，确认再改。",
+    "should_trigger": true,
+    "required_outcomes": [
+      "确认宿主与前端加载关系，只分析已授权的两个源码根",
+      "按页面和公共依赖分批，直接整理需要的访问路径，不强制全量原生路由扫描",
+      "使用一份账本，按批生成 HTML 并统一确认，保留每批设备覆盖",
+      "分别记录前端与宿主构建结果，并验证 WebView 加载本轮资源"
+    ],
+    "forbidden_claims": [
+      "宿主扫描完成等于 H5 页面全量分析完成",
+      "最后一次宿主构建成功即可覆盖前端构建失败",
+      "未经授权发布到线上环境"
+    ]
+  },
+  {
+    "id": "rn-full-workflow",
+    "prompt": "按五步流程适配 RNOH 的首页、购物车和订单，保留现有导航和版本。",
+    "should_trigger": true,
+    "required_outcomes": [
+      "核实锁定版本、RN 导航 Screen 和相关宿主，按可独立验收的功能分批",
+      "将风险脚本输出作为候选，由 RN 知识核实后生成 SPEC",
+      "按工程现有命令检查 JS 和 bundle，涉及宿主时追加宿主构建",
+      "验证实际 RN 页面，不把 Surface 外壳当作全部内部节点证据"
+    ],
+    "forbidden_claims": [
+      "为了建立批次必须让 ArkTS 扫描器识别 TSX 页面",
+      "领域清单单独扩展用户可见五项 Todo",
+      "静态扫描无命中即证明运行效果正确"
+    ]
+  },
+  {
+    "id": "host-only-h5-workflow",
+    "prompt": "按 workflow 修复 WebView 展开后留白，当前只有 ArkTS 宿主，H5 代码在另一个未提供的仓库，Web 加载远程 URL。",
+    "should_trigger": true,
+    "required_outcomes": [
+      "按 H5 边界判为仅宿主可编辑，区分容器约束与内部网页问题",
+      "可在宿主闭环的问题按五步处理；依赖 H5 的部分明确缺口并交接",
+      "不能完成的运行验证如实记录，不以宿主构建替代"
+    ],
+    "forbidden_claims": [
+      "沿 URL 自动获得可维护 H5 源码",
+      "虚构 H5 消费端、路由、DOM 或已完成效果",
+      "因为只有局部问题而无视用户明确的 workflow 要求"
+    ]
+  }
+]

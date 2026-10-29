@@ -1,0 +1,130 @@
+[INFO] dump start
+{
+ "attributes": {
+  "id": "root",
+  "bounds": "[0,0][1000,2000]"
+ },
+ "children": [
+  {
+   "attributes": {
+    "id": "grid-item-row",
+    "bounds": "[0,0][1000,300]"
+   },
+   "children": [
+    {
+     "attributes": {
+      "id": "grid-item-0",
+      "bounds": "[0,0][125,100]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-1",
+      "bounds": "[125,0][250,100]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-2",
+      "bounds": "[250,0][375,100]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-3",
+      "bounds": "[375,0][500,100]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-4",
+      "bounds": "[500,0][625,100]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-5",
+      "bounds": "[625,0][750,100]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-6",
+      "bounds": "[750,0][875,100]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-7",
+      "bounds": "[0,100][125,200]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-8",
+      "bounds": "[125,100][250,200]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-9",
+      "bounds": "[250,100][375,200]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-10",
+      "bounds": "[375,100][500,200]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-11",
+      "bounds": "[500,100][625,200]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-12",
+      "bounds": "[625,100][750,200]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-13",
+      "bounds": "[750,100][875,200]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-14",
+      "bounds": "[0,200][125,300]"
+     },
+     "children": []
+    },
+    {
+     "attributes": {
+      "id": "grid-item-15",
+      "bounds": "[125,200][250,300]"
+     },
+     "children": []
+    }
+   ]
+  }
+ ]
+}
+[INFO] dump done {ok}
