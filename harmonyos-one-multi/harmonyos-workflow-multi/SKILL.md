@@ -1,0 +1,122 @@
+---
+name: harmonyos-workflow-multi
+description: 判断 HarmonyOS 一多适配请求是直接修复、全量分析还是按预定流程交付。范围和预期明确的局部问题交给对应领域 Skill；ArkTS、H5、Flutter、RN 的页面集或工程适配，以及明确要求分批 SPEC、高保真、完整验证与报告时使用本 Skill。统一五步交付，按框架选择工程分析和验证方式，具体修法来自独立领域 Skill。当前不编排 2in1/PC 适配。
+---
+
+# HarmonyOS 一多全流程
+
+## 适用边界
+
+本 Skill 是 ArkTS、H5、Flutter、RN 的可选工程级流程，不是所有一多问题的唯一入口。用户未要求全流程、且目标和预期明确的局部问题，直接使用命中的领域 Skill，不创建 `.onemulti`、批次或报告。
+
+全流程统一按下文五步执行；H5、Flutter、RN 先读 [框架接入](references/framework-workflow.md)，分别使用 `harmonyos-h5-multi`、`harmonyos-flutter-multi`、`harmonyos-rn-multi` 的知识。领域文档中的诊断、实施和验收方法按当前步骤使用，不另起流程或提前施工。
+
+混合工程先确认前端源码、原生宿主及关联；仅存在 `.ets` 或 `ohos/` 不代表整个工程属于原生 ArkTS。只提供一端时仅处理可确认范围，缺失对端明确交接，不以宿主扫描或构建冒充三方页面分析与验证。
+
+本 Skill 只定义范围、扫描、批次、确认、施工顺序、验证证据和报告契约。不在这里推断断点、布局或 Camera API 修法。进入问题诊断、方案、施工和领域验证时，必须加载与当前问题匹配的独立领域 Skill。
+
+当前支持手机、折叠屏和平板形态，不支持 2in1/PC。范围或冻结验证计划明确包含 2in1/PC 时，记录为当前不支持并停止对应项，不得映射成其他设备继续执行。
+
+**待办约束：** 进入五步闭环时，用户可见 Todo 固定为五项，与下文五步一一对应。前置准备、构建、扫描等不单列；多批次复用第二至第五项，仅更新批次标识和状态。
+
+## 领域 Skill 可用性自检
+
+本流程按名字加载独立领域 Skill（`harmonyos-ui-multi`、`harmonyos-camera-multi`、`harmonyos-h5-multi`、`harmonyos-flutter-multi`、`harmonyos-rn-multi`；验证阶段为 `multi-form-test-pipeline` 及其依赖 `ux-judge`、`python-hypium`）。集成环境默认全部就绪；独立分发环境下进入五步闭环前，先确认当前工程框架对应的领域 Skill 已安装（工程级或用户级 skills 目录下存在 `<skill>/SKILL.md`）。
+
+未安装时，通过入口 Skill `harmonyos-one-multi` 的 `scripts/remote_load.sh` 拉取（验证流水线须加 `--with-deps`），或提示用户安装后再继续；不得在领域 Skill 缺失时凭自身经验替代其诊断与修法。
+
+## 前置准备
+
+全部命令用 `$OM` 表示流程 Skill 根目录：
+
+```bash
+export OM=.onemulti  # 已安装到工程
+export OM=.          # 直接在本 Skill 源目录工作
+```
+
+运行环境不能读取工程外文件时，执行：
+
+```bash
+python3 <workflow Skill源目录>/scripts/install-to-project.py <工程根>
+```
+
+安装器只复制流程资源到 `<工程根>/.onemulti/`，并保留已有账本、证据和报告。领域 Skill 不安装到 `.onemulti`。
+
+## 接续任务
+
+先读取已有 `$OM/decisions.json`。任务未完成时从当前进度继续；`task.status=completed` 时，由 Agent 判断本次请求是原任务的修正、补测或方案调整，还是新的独立任务：延续任务保留产物并刷新相关批次状态；新任务先清理旧任务产物，再从第一步开始。具体命令按 [任务账本](references/task-ledger.md#接续与新任务)。仅查询或解释不改状态，无法判断时先询问，不自行清理。
+
+## 五步闭环
+
+### 1. 确认范围并生成批次计划
+
+确认代码范围、目标设备/形态和排除项，按工程已有命令记录构建基线。原生 ArkTS 工程按 [页面发现](references/page-inventory.md) 运行 `project-scan.py`；H5、Flutter、RN 按 [框架接入](references/framework-workflow.md) 分析入口、页面或功能区、公共依赖及可用源码层，不强制运行原生扫描器或生成全工程路由图。
+
+按可独立修改与验证的页面、功能或公共依赖划分批次；范围小时只建一批。按 [路由表契约](references/route-map.md) 记录本次批次验证所需的已核实访问路径。本步只确定范围与计划，风险扫描仅提供线索，不生成具体 Issue 或修法。
+
+确认 `task.targetForms` 后，有 HarmonyOS 宿主源码时核对其模块安装能力：加载 UI 领域 Skill 读取 `references/module-device-types.md`，检查确认宿主范围内全部 HAP/HAR/HSP 的 `module.deviceTypes`，不能只查入口 HAP。缺失或不符记入 `decisions`，第二步生成 packaging Issue（`source=baseline`）随 SPEC 确认；无宿主源码时记录限制，不要求前端工程虚构 `module.json5`。
+
+本步不为具体修法检索官方文档。
+
+按 [任务账本](references/task-ledger.md) 使用 `bootstrap` 初始化 `$OM/decisions.json`；用户已要求高保真时，将对应批次的 `hifiRequired` 写为 `true`。多批任务询问用户先生成第一批 SPEC，还是先生成全部 SPEC；单批任务直接进入第二步。
+
+### 2. 逐批生成并确认 SPEC
+
+按确认模式为当前批或全部批次加载命中的领域 Skill，由领域知识确定现象、证据、根因、方案、计划文件和验证方法。写入 `decisions.json` 的各批 `issues` 就是 SPEC，不生成第二份 PRD/SPEC。第一步 deviceTypes 核对发现缺失或不符时，本步必须生成 packaging Issue（计划文件为对应 `module.json5`），与页面 Issue 一并确认。
+
+这是官方文档检索的主要阶段：当领域 Skill 判断 API、版本、系统行为或知识缺口需要核实时，按该领域 Skill 的规则执行 `devecocli docs search/read`；不得用搜索摘要替代领域诊断。
+
+展示 SPEC 前先读 [高保真流程契约](references/hifi-delivery.md) 及账本：`batch.hifiRequired=true` 时直接生成 HTML，设备覆盖读取 `task.targetForms`，不得按批自行缩减。尚未要求高保真且不是极小改动时，在同一次交互中提供预览或直接施工选项，选择预览后写回该批要求。`aggregate` 模式先生成全部 SPEC 和所有要求的批次 HTML，再统一确认；不得用 SPEC 已确认代替高保真交付，也不得连续询问预览和施工。
+
+未获得整批确认前不得进入施工。
+
+### 3. 按已确认 Issue 施工
+
+以当前批次确认的 Issue、允许文件和目标形态为边界，加载对应领域 Skill 完成修改，不替换工程现有框架。每个 Issue 施工后立即回写 `changeStatus`、实际文件和变更摘要。
+
+只有实际编译暴露 API 不兼容或文档事实冲突时，才在本步补充检索并核实全文；不得借此扩大已确认范围。
+
+当前批已有高保真时，SPEC 控制修改范围和方案，HTML 控制已确认的布局、比例、位置和组件状态。
+
+施工结束后按 [工具说明](references/tooling.md) 记录构建和适用检查结果；检查失败不阻断进入第四步，由验证阶段判断修复或记录限制。
+
+### 4. 验证、修复并回写证据
+
+完整读取 [验证流程](references/verification.md)，只执行已确认 `verificationPlan` 中的形态、路由和检查项。构建、静态检查、设备运行、多模态、证据和结果写回均由流程 Skill 执行；命令按实际框架选择，验收标准来自对应领域知识。原生 UI 域批次 L2 默认附带 `check-device-types.py`；三方页面不能用原生静态检查的零命中证明通过。
+
+只修复有证据表明由本批修改引起的问题，每批最多 5 轮；连续两轮无新增证据或根因进展时停止。可修复问题继续下一轮，不因首轮失败直接收尾。验证通过、无可继续自动修复项或达到停止条件后，记录遗留问题并进入报告；无法形成可靠证据时记为未验证，不得用编译成功代替运行或视觉结论。
+
+验证失败且根因不明确时，可按领域 Skill 规则查询官方 FAQ 或最佳实践；报告阶段不再检索文档。
+
+### 5. 生成批次报告与最终汇总
+
+验证循环结束后，按 [报告规则](references/reporting.md) 生成 HTML；失败和未验证结果不阻断报告生成。脚本自带输入校验，无需重复执行校验命令：
+
+```bash
+python3 $OM/scripts/render-report.py $OM --batch-id <batchId>
+```
+
+批次报告展示后，只有用户明确同意继续才进入下一批；此时不得提前生成汇总报告。全部批次进入终态后，再单独执行：
+
+```bash
+python3 $OM/scripts/render-report.py $OM --summary
+```
+
+单批任务也在批次报告完成后生成汇总报告。汇总只聚合已有结果，不重跑测试。
+
+## 资源路由
+
+- H5、Flutter、RN 与混合工程：[framework-workflow.md](references/framework-workflow.md)。
+- 页面与路由扫描：[page-inventory.md](references/page-inventory.md)、[route-map.md](references/route-map.md)。
+- 账本与状态：[task-ledger.md](references/task-ledger.md)。
+- 高保真编排：[hifi-delivery.md](references/hifi-delivery.md)。
+- 验证与证据：[verification.md](references/verification.md)、[multimodal-common-issues.md](references/multimodal-common-issues.md)。
+- 报告：[reporting.md](references/reporting.md)。
+- 工具边界：[tooling.md](references/tooling.md)。
+
+## 不可破坏的边界
+
+- 不在 workflow 中复制领域根因、修法、API 矩阵或代码资产。
+- 不要求领域 Skill 引用 workflow 的目录、脚本、账本或报告。
+- 全流程中只由 workflow 管理 `.onemulti`、批次、用户确认、证据和报告。
+- 子 Agent 不是本流程的必要依赖。
